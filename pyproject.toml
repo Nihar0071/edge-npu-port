@@ -1,0 +1,31 @@
+[project]
+name = "edge-npu-port"
+version = "0.1.0"
+description = "Vendor-neutral edge-NPU feasibility checks for ONNX models: inspect, estimate (with measured validation), quant-doctor."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "matplotlib>=3.11.2",
+    "mcp[cli]>=2.3.0",
+    "numpy>=2.5.4",
+    "onnx>=1.23.2",
+    "onnxruntime>=1.31.1",
+    "onnxslim>=0.1.99",
+    "pycocotools>=2.0.11",
+    "pyyaml>=6.0.3",
+    "ultralytics>=8.4.207",
+]
+
+[project.scripts]
+edgeport = "edge_npu_port.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.12.8,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "cmake>=4.4.4",
+    "ninja>=1.13.2",
+    "pytest>=9.2.0",
+]

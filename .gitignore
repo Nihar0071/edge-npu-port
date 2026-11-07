@@ -1,0 +1,14 @@
+# Python / uv
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Large or downloaded artifacts (re-created by scripts)
+models/
+data/
+runs/
+sim/build/
+
+# OS
+.DS_Store
