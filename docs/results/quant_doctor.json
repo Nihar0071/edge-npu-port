@@ -1,0 +1,326 @@
+{
+  "model": "yolo11n.onnx",
+  "target": "nano-gpnpu",
+  "eval_images": 500,
+  "calib_images": 64,
+  "float_onnx_map50_95": 0.4237294089107883,
+  "rows": [
+    {
+      "label": "pytorch float32",
+      "map50_95": 0.4237294056850098,
+      "map50": 0.5766449985681429,
+      "added_ms": 0.0,
+      "excluded": [],
+      "drop_pts": 3.2257785331779587e-07
+    },
+    {
+      "label": "onnx float32",
+      "map50_95": 0.4237294089107883,
+      "map50": 0.5766450175086385,
+      "added_ms": 0.0,
+      "excluded": [],
+      "drop_pts": 0.0
+    },
+    {
+      "label": "int8 per-channel / minmax (naive, nothing excluded)",
+      "map50_95": 0.0,
+      "map50": 0.0,
+      "added_ms": 0.0,
+      "excluded": [],
+      "drop_pts": 42.372940891078834
+    },
+    {
+      "label": "int8 per-tensor / minmax + blockers float",
+      "map50_95": 0.30989214107655266,
+      "map50": 0.4860976445875802,
+      "added_ms": 0.11025,
+      "excluded": [
+        "/model.23/Concat_3"
+      ],
+      "drop_pts": 11.383726783423565
+    },
+    {
+      "label": "int8 per-channel / minmax + blockers float",
+      "map50_95": 0.3375146491412841,
+      "map50": 0.5211525839466455,
+      "added_ms": 0.11025,
+      "excluded": [
+        "/model.23/Concat_3"
+      ],
+      "drop_pts": 8.621475976950421
+    },
+    {
+      "label": "int8 per-channel / percentile 99.999 + blockers float",
+      "map50_95": 0.34309632930259276,
+      "map50": 0.5308636947613735,
+      "added_ms": 0.11025,
+      "excluded": [
+        "/model.23/Concat_3"
+      ],
+      "drop_pts": 8.063307960819554
+    },
+    {
+      "label": "int8 per-channel / percentile 99.999 + blockers + decode tail",
+      "map50_95": 0.4138444223156757,
+      "map50": 0.5666419484162692,
+      "added_ms": 1.0194770000000002,
+      "excluded": [
+        "/model.23/Concat_3",
+        "/model.23/Reshape",
+        "/model.23/Reshape_3",
+        "/model.23/Reshape_1",
+        "/model.23/Reshape_4",
+        "/model.23/Reshape_2",
+        "/model.23/Concat",
+        "/model.23/dfl/Reshape",
+        "/model.23/dfl/Transpose",
+        "/model.23/dfl/Softmax",
+        "/model.23/dfl/conv/Conv",
+        "/model.23/Reshape_5",
+        "/model.23/dfl/Reshape_1",
+        "/model.23/Concat_1",
+        "/model.23/Slice",
+        "/model.23/Slice_1",
+        "/model.23/Sigmoid",
+        "/model.23/Sub",
+        "/model.23/Add_1",
+        "/model.23/Add_2",
+        "/model.23/Sub_1",
+        "/model.23/Div_1",
+        "/model.23/Concat_2",
+        "/model.23/Mul_2"
+      ],
+      "drop_pts": 0.988498659511261
+    },
+    {
+      "label": "int8 per-channel / percentile 99.999 + blockers + tail + 3 lowest-SQNR layers",
+      "map50_95": 0.41117647533359225,
+      "map50": 0.5615463509591573,
+      "added_ms": 1.9626110000000008,
+      "excluded": [
+        "/model.23/Concat_3",
+        "/model.23/Reshape",
+        "/model.23/Reshape_3",
+        "/model.23/Reshape_1",
+        "/model.23/Reshape_4",
+        "/model.23/Reshape_2",
+        "/model.23/Concat",
+        "/model.23/dfl/Reshape",
+        "/model.23/dfl/Transpose",
+        "/model.23/dfl/Softmax",
+        "/model.23/dfl/conv/Conv",
+        "/model.23/Reshape_5",
+        "/model.23/dfl/Reshape_1",
+        "/model.23/Concat_1",
+        "/model.23/Slice",
+        "/model.23/Slice_1",
+        "/model.23/Sigmoid",
+        "/model.23/Sub",
+        "/model.23/Add_1",
+        "/model.23/Add_2",
+        "/model.23/Sub_1",
+        "/model.23/Div_1",
+        "/model.23/Concat_2",
+        "/model.23/Mul_2",
+        "/model.10/m/m.0/attn/Softmax",
+        "/model.1/conv/Conv",
+        "/model.2/cv1/conv/Conv"
+      ],
+      "drop_pts": 1.2552933577196057
+    },
+    {
+      "label": "int8 per-channel / percentile 99.999 + blockers + tail + 6 lowest-SQNR layers",
+      "map50_95": 0.4101852750430352,
+      "map50": 0.5629224865269896,
+      "added_ms": 2.035211000000001,
+      "excluded": [
+        "/model.23/Concat_3",
+        "/model.23/Reshape",
+        "/model.23/Reshape_3",
+        "/model.23/Reshape_1",
+        "/model.23/Reshape_4",
+        "/model.23/Reshape_2",
+        "/model.23/Concat",
+        "/model.23/dfl/Reshape",
+        "/model.23/dfl/Transpose",
+        "/model.23/dfl/Softmax",
+        "/model.23/dfl/conv/Conv",
+        "/model.23/Reshape_5",
+        "/model.23/dfl/Reshape_1",
+        "/model.23/Concat_1",
+        "/model.23/Slice",
+        "/model.23/Slice_1",
+        "/model.23/Sigmoid",
+        "/model.23/Sub",
+        "/model.23/Add_1",
+        "/model.23/Add_2",
+        "/model.23/Sub_1",
+        "/model.23/Div_1",
+        "/model.23/Concat_2",
+        "/model.23/Mul_2",
+        "/model.10/m/m.0/attn/Softmax",
+        "/model.1/conv/Conv",
+        "/model.2/cv1/conv/Conv",
+        "/model.23/cv3.2/cv3.2.0/cv3.2.0.0/conv/Conv",
+        "/model.1/act/Mul",
+        "/model.23/cv3.1/cv3.1.1/cv3.1.1.1/conv/Conv"
+      ],
+      "drop_pts": 1.3544133867753105
+    }
+  ],
+  "sensitivity_top": [
+    {
+      "tensor": "/model.10/m/m.0/attn/Softmax_output_0",
+      "node": "/model.10/m/m.0/attn/Softmax",
+      "op": "Softmax",
+      "sqnr_db": 19.727199193852847,
+      "xmodel_db": 9.53441469923677
+    },
+    {
+      "tensor": "/model.1/conv/Conv_output_0",
+      "node": "/model.1/conv/Conv",
+      "op": "Conv",
+      "sqnr_db": 23.47456088735935,
+      "xmodel_db": 20.576740478679053
+    },
+    {
+      "tensor": "/model.2/cv1/conv/Conv_output_0",
+      "node": "/model.2/cv1/conv/Conv",
+      "op": "Conv",
+      "sqnr_db": 23.987048050950218,
+      "xmodel_db": 16.66566641675437
+    },
+    {
+      "tensor": "/model.23/cv3.2/cv3.2.0/cv3.2.0.0/conv/Conv_output_0",
+      "node": "/model.23/cv3.2/cv3.2.0/cv3.2.0.0/conv/Conv",
+      "op": "Conv",
+      "sqnr_db": 24.147728727031904,
+      "xmodel_db": 10.842232110574386
+    },
+    {
+      "tensor": "/model.1/act/Mul_output_0",
+      "node": "/model.1/act/Mul",
+      "op": "Mul",
+      "sqnr_db": 24.767796665555956,
+      "xmodel_db": 18.79624037672367
+    },
+    {
+      "tensor": "/model.23/cv3.1/cv3.1.1/cv3.1.1.1/conv/Conv_output_0",
+      "node": "/model.23/cv3.1/cv3.1.1/cv3.1.1.1/conv/Conv",
+      "op": "Conv",
+      "sqnr_db": 24.790195918467756,
+      "xmodel_db": 10.121837181835847
+    },
+    {
+      "tensor": "/model.23/cv3.0/cv3.0.1/cv3.0.1.1/conv/Conv_output_0",
+      "node": "/model.23/cv3.0/cv3.0.1/cv3.0.1.1/conv/Conv",
+      "op": "Conv",
+      "sqnr_db": 26.670813864292683,
+      "xmodel_db": 10.944623637691006
+    },
+    {
+      "tensor": "/model.23/cv3.2/cv3.2.0/cv3.2.0.1/conv/Conv_output_0",
+      "node": "/model.23/cv3.2/cv3.2.0/cv3.2.0.1/conv/Conv",
+      "op": "Conv",
+      "sqnr_db": 27.388911369374355,
+      "xmodel_db": 11.268755042039835
+    },
+    {
+      "tensor": "/model.23/cv2.0/cv2.0.1/conv/Conv_output_0",
+      "node": "/model.23/cv2.0/cv2.0.1/conv/Conv",
+      "op": "Conv",
+      "sqnr_db": 27.52088558537849,
+      "xmodel_db": 10.366572265731461
+    },
+    {
+      "tensor": "/model.23/cv3.1/cv3.1.1/cv3.1.1.1/act/Mul_output_0",
+      "node": "/model.23/cv3.1/cv3.1.1/cv3.1.1.1/act/Mul",
+      "op": "Mul",
+      "sqnr_db": 27.612143710229272,
+      "xmodel_db": 11.19515716143951
+    },
+    {
+      "tensor": "/model.2/cv2/conv/Conv_output_0",
+      "node": "/model.2/cv2/conv/Conv",
+      "op": "Conv",
+      "sqnr_db": 27.85976333714839,
+      "xmodel_db": 13.458815883097042
+    },
+    {
+      "tensor": "/model.8/m.0/cv1/conv/Conv_output_0",
+      "node": "/model.8/m.0/cv1/conv/Conv",
+      "op": "Conv",
+      "sqnr_db": 28.529269871998547,
+      "xmodel_db": 13.193233099558972
+    },
+    {
+      "tensor": "/model.23/cv3.2/cv3.2.0/cv3.2.0.0/act/Mul_output_0",
+      "node": "/model.23/cv3.2/cv3.2.0/cv3.2.0.0/act/Mul",
+      "op": "Mul",
+      "sqnr_db": 28.754528018069028,
+      "xmodel_db": 11.170743786923097
+    },
+    {
+      "tensor": "/model.4/cv1/conv/Conv_output_0",
+      "node": "/model.4/cv1/conv/Conv",
+      "op": "Conv",
+      "sqnr_db": 28.97569228248934,
+      "xmodel_db": 14.219047005978911
+    },
+    {
+      "tensor": "/model.3/conv/Conv_output_0",
+      "node": "/model.3/conv/Conv",
+      "op": "Conv",
+      "sqnr_db": 29.088948370240768,
+      "xmodel_db": 12.260098393040291
+    },
+    {
+      "tensor": "/model.23/cv3.2/cv3.2.1/cv3.2.1.0/conv/Conv_output_0",
+      "node": "/model.23/cv3.2/cv3.2.1/cv3.2.1.0/conv/Conv",
+      "op": "Conv",
+      "sqnr_db": 29.729133760153346,
+      "xmodel_db": 15.249930860576315
+    },
+    {
+      "tensor": "/model.23/cv2.1/cv2.1.1/conv/Conv_output_0",
+      "node": "/model.23/cv2.1/cv2.1.1/conv/Conv",
+      "op": "Conv",
+      "sqnr_db": 29.838591957217496,
+      "xmodel_db": 9.409789812798573
+    },
+    {
+      "tensor": "/model.0/conv/Conv_output_0",
+      "node": "/model.0/conv/Conv",
+      "op": "Conv",
+      "sqnr_db": 30.241583289873986,
+      "xmodel_db": 30.173355624139667
+    },
+    {
+      "tensor": "/model.22/cv2/act/Mul_output_0",
+      "node": "/model.22/cv2/act/Mul",
+      "op": "Mul",
+      "sqnr_db": 30.269829180621983,
+      "xmodel_db": 9.772415878236608
+    },
+    {
+      "tensor": "/model.23/cv3.1/cv3.1.0/cv3.1.0.1/conv/Conv_output_0",
+      "node": "/model.23/cv3.1/cv3.1.0/cv3.1.0.1/conv/Conv",
+      "op": "Conv",
+      "sqnr_db": 30.516778038418625,
+      "xmodel_db": 11.151982140311734
+    }
+  ],
+  "range_mixing": [
+    {
+      "node": "/model.23/Concat_3",
+      "output": "output0",
+      "input_bits": [
+        7.99,
+        -1.44
+      ]
+    }
+  ],
+  "assumptions": [
+    "layers kept in float run as fp16 on the target at 1/4 the int8 MAC rate, 2x bytes"
+  ]
+}

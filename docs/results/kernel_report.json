@@ -1,0 +1,436 @@
+{
+  "layer": {
+    "layer": "/model.16/cv1/conv/Conv",
+    "pixels": 6400,
+    "cin": 256,
+    "cout": 64,
+    "hw": [
+      80,
+      80
+    ],
+    "s_x": 0.015031370334327221,
+    "z_x": -109,
+    "s_conv": 0.04217904061079025,
+    "z_conv": 15,
+    "s_y": 0.011995574459433556,
+    "z_y": -105,
+    "m_range": [
+      0.00033782081242829046,
+      0.0031618898086788853
+    ],
+    "shift_range": [
+      8,
+      11
+    ]
+  },
+  "results": {
+    "v0": {
+      "mode": "v0",
+      "bit_exact": true,
+      "cycles": 394592,
+      "ideal_mac_cycles": 204800,
+      "mac_utilization": 0.519017,
+      "time_us": 394.592,
+      "dma_busy": 140000,
+      "compute_busy": 254592,
+      "pixels_per_pe": 9,
+      "cout_block": 4,
+      "tiles": 12,
+      "local_bytes_used": 4048,
+      "local_bytes": 4096,
+      "shape": {
+        "pixels": 6400,
+        "cin": 256,
+        "cout": 64
+      }
+    },
+    "v1": {
+      "mode": "v1",
+      "bit_exact": true,
+      "cycles": 256520,
+      "ideal_mac_cycles": 204800,
+      "mac_utilization": 0.798378,
+      "time_us": 256.52,
+      "dma_busy": 153000,
+      "compute_busy": 250400,
+      "pixels_per_pe": 4,
+      "cout_block": 4,
+      "tiles": 25,
+      "local_bytes_used": 3648,
+      "local_bytes": 4096,
+      "shape": {
+        "pixels": 6400,
+        "cin": 256,
+        "cout": 64
+      }
+    },
+    "v2": {
+      "mode": "v2",
+      "bit_exact": true,
+      "cycles": 231770,
+      "ideal_mac_cycles": 204800,
+      "mac_utilization": 0.883635,
+      "time_us": 231.77,
+      "dma_busy": 153000,
+      "compute_busy": 225650,
+      "pixels_per_pe": 4,
+      "cout_block": 4,
+      "tiles": 25,
+      "local_bytes_used": 3648,
+      "local_bytes": 4096,
+      "shape": {
+        "pixels": 6400,
+        "cin": 256,
+        "cout": 64
+      }
+    }
+  },
+  "sweep": [
+    {
+      "mode": "v0",
+      "bit_exact": true,
+      "cycles": 557600,
+      "ideal_mac_cycles": 204800,
+      "mac_utilization": 0.367288,
+      "time_us": 557.6,
+      "dma_busy": 228000,
+      "compute_busy": 329600,
+      "pixels_per_pe": 1,
+      "cout_block": 4,
+      "tiles": 100,
+      "local_bytes_used": 1360,
+      "local_bytes": 4096,
+      "shape": {
+        "pixels": 6400,
+        "cin": 256,
+        "cout": 64
+      }
+    },
+    {
+      "mode": "v0",
+      "bit_exact": true,
+      "cycles": 454800,
+      "ideal_mac_cycles": 204800,
+      "mac_utilization": 0.450308,
+      "time_us": 454.8,
+      "dma_busy": 178000,
+      "compute_busy": 276800,
+      "pixels_per_pe": 2,
+      "cout_block": 4,
+      "tiles": 50,
+      "local_bytes_used": 1696,
+      "local_bytes": 4096,
+      "shape": {
+        "pixels": 6400,
+        "cin": 256,
+        "cout": 64
+      }
+    },
+    {
+      "mode": "v0",
+      "bit_exact": true,
+      "cycles": 426384,
+      "ideal_mac_cycles": 204800,
+      "mac_utilization": 0.480318,
+      "time_us": 426.384,
+      "dma_busy": 162000,
+      "compute_busy": 264384,
+      "pixels_per_pe": 3,
+      "cout_block": 4,
+      "tiles": 34,
+      "local_bytes_used": 2032,
+      "local_bytes": 4096,
+      "shape": {
+        "pixels": 6400,
+        "cin": 256,
+        "cout": 64
+      }
+    },
+    {
+      "mode": "v0",
+      "bit_exact": true,
+      "cycles": 403400,
+      "ideal_mac_cycles": 204800,
+      "mac_utilization": 0.507685,
+      "time_us": 403.4,
+      "dma_busy": 153000,
+      "compute_busy": 250400,
+      "pixels_per_pe": 4,
+      "cout_block": 4,
+      "tiles": 25,
+      "local_bytes_used": 2368,
+      "local_bytes": 4096,
+      "shape": {
+        "pixels": 6400,
+        "cin": 256,
+        "cout": 64
+      }
+    },
+    {
+      "mode": "v0",
+      "bit_exact": true,
+      "cycles": 393120,
+      "ideal_mac_cycles": 204800,
+      "mac_utilization": 0.520961,
+      "time_us": 393.12,
+      "dma_busy": 148000,
+      "compute_busy": 245120,
+      "pixels_per_pe": 5,
+      "cout_block": 4,
+      "tiles": 20,
+      "local_bytes_used": 2704,
+      "local_bytes": 4096,
+      "shape": {
+        "pixels": 6400,
+        "cin": 256,
+        "cout": 64
+      }
+    },
+    {
+      "mode": "v0",
+      "bit_exact": true,
+      "cycles": 391432,
+      "ideal_mac_cycles": 204800,
+      "mac_utilization": 0.523207,
+      "time_us": 391.432,
+      "dma_busy": 145000,
+      "compute_busy": 246432,
+      "pixels_per_pe": 6,
+      "cout_block": 4,
+      "tiles": 17,
+      "local_bytes_used": 3040,
+      "local_bytes": 4096,
+      "shape": {
+        "pixels": 6400,
+        "cin": 256,
+        "cout": 64
+      }
+    },
+    {
+      "mode": "v0",
+      "bit_exact": true,
+      "cycles": 394040,
+      "ideal_mac_cycles": 204800,
+      "mac_utilization": 0.519744,
+      "time_us": 394.04,
+      "dma_busy": 143000,
+      "compute_busy": 251040,
+      "pixels_per_pe": 7,
+      "cout_block": 4,
+      "tiles": 15,
+      "local_bytes_used": 3376,
+      "local_bytes": 4096,
+      "shape": {
+        "pixels": 6400,
+        "cin": 256,
+        "cout": 64
+      }
+    },
+    {
+      "mode": "v0",
+      "bit_exact": true,
+      "cycles": 387688,
+      "ideal_mac_cycles": 204800,
+      "mac_utilization": 0.52826,
+      "time_us": 387.688,
+      "dma_busy": 141000,
+      "compute_busy": 246688,
+      "pixels_per_pe": 8,
+      "cout_block": 4,
+      "tiles": 13,
+      "local_bytes_used": 3712,
+      "local_bytes": 4096,
+      "shape": {
+        "pixels": 6400,
+        "cin": 256,
+        "cout": 64
+      }
+    },
+    {
+      "mode": "v0",
+      "bit_exact": true,
+      "cycles": 394592,
+      "ideal_mac_cycles": 204800,
+      "mac_utilization": 0.519017,
+      "time_us": 394.592,
+      "dma_busy": 140000,
+      "compute_busy": 254592,
+      "pixels_per_pe": 9,
+      "cout_block": 4,
+      "tiles": 12,
+      "local_bytes_used": 4048,
+      "local_bytes": 4096,
+      "shape": {
+        "pixels": 6400,
+        "cin": 256,
+        "cout": 64
+      }
+    },
+    {
+      "mode": "v1",
+      "bit_exact": true,
+      "cycles": 331880,
+      "ideal_mac_cycles": 204800,
+      "mac_utilization": 0.617091,
+      "time_us": 331.88,
+      "dma_busy": 228000,
+      "compute_busy": 329600,
+      "pixels_per_pe": 1,
+      "cout_block": 4,
+      "tiles": 100,
+      "local_bytes_used": 1680,
+      "local_bytes": 4096,
+      "shape": {
+        "pixels": 6400,
+        "cin": 256,
+        "cout": 64
+      }
+    },
+    {
+      "mode": "v1",
+      "bit_exact": true,
+      "cycles": 280360,
+      "ideal_mac_cycles": 204800,
+      "mac_utilization": 0.730489,
+      "time_us": 280.36,
+      "dma_busy": 178000,
+      "compute_busy": 276800,
+      "pixels_per_pe": 2,
+      "cout_block": 4,
+      "tiles": 50,
+      "local_bytes_used": 2336,
+      "local_bytes": 4096,
+      "shape": {
+        "pixels": 6400,
+        "cin": 256,
+        "cout": 64
+      }
+    },
+    {
+      "mode": "v1",
+      "bit_exact": true,
+      "cycles": 268712,
+      "ideal_mac_cycles": 204800,
+      "mac_utilization": 0.762154,
+      "time_us": 268.712,
+      "dma_busy": 162000,
+      "compute_busy": 264384,
+      "pixels_per_pe": 3,
+      "cout_block": 4,
+      "tiles": 34,
+      "local_bytes_used": 2992,
+      "local_bytes": 4096,
+      "shape": {
+        "pixels": 6400,
+        "cin": 256,
+        "cout": 64
+      }
+    },
+    {
+      "mode": "v1",
+      "bit_exact": true,
+      "cycles": 256520,
+      "ideal_mac_cycles": 204800,
+      "mac_utilization": 0.798378,
+      "time_us": 256.52,
+      "dma_busy": 153000,
+      "compute_busy": 250400,
+      "pixels_per_pe": 4,
+      "cout_block": 4,
+      "tiles": 25,
+      "local_bytes_used": 3648,
+      "local_bytes": 4096,
+      "shape": {
+        "pixels": 6400,
+        "cin": 256,
+        "cout": 64
+      }
+    },
+    {
+      "mode": "v2",
+      "bit_exact": true,
+      "cycles": 232880,
+      "ideal_mac_cycles": 204800,
+      "mac_utilization": 0.879423,
+      "time_us": 232.88,
+      "dma_busy": 228000,
+      "compute_busy": 230600,
+      "pixels_per_pe": 1,
+      "cout_block": 4,
+      "tiles": 100,
+      "local_bytes_used": 1680,
+      "local_bytes": 4096,
+      "shape": {
+        "pixels": 6400,
+        "cin": 256,
+        "cout": 64
+      }
+    },
+    {
+      "mode": "v2",
+      "bit_exact": true,
+      "cycles": 230860,
+      "ideal_mac_cycles": 204800,
+      "mac_utilization": 0.887118,
+      "time_us": 230.86,
+      "dma_busy": 178000,
+      "compute_busy": 227300,
+      "pixels_per_pe": 2,
+      "cout_block": 4,
+      "tiles": 50,
+      "local_bytes_used": 2336,
+      "local_bytes": 4096,
+      "shape": {
+        "pixels": 6400,
+        "cin": 256,
+        "cout": 64
+      }
+    },
+    {
+      "mode": "v2",
+      "bit_exact": true,
+      "cycles": 235052,
+      "ideal_mac_cycles": 204800,
+      "mac_utilization": 0.871297,
+      "time_us": 235.052,
+      "dma_busy": 162000,
+      "compute_busy": 230724,
+      "pixels_per_pe": 3,
+      "cout_block": 4,
+      "tiles": 34,
+      "local_bytes_used": 2992,
+      "local_bytes": 4096,
+      "shape": {
+        "pixels": 6400,
+        "cin": 256,
+        "cout": 64
+      }
+    },
+    {
+      "mode": "v2",
+      "bit_exact": true,
+      "cycles": 231770,
+      "ideal_mac_cycles": 204800,
+      "mac_utilization": 0.883635,
+      "time_us": 231.77,
+      "dma_busy": 153000,
+      "compute_busy": 225650,
+      "pixels_per_pe": 4,
+      "cout_block": 4,
+      "tiles": 25,
+      "local_bytes_used": 3648,
+      "local_bytes": 4096,
+      "shape": {
+        "pixels": 6400,
+        "cin": 256,
+        "cout": 64
+      }
+    }
+  ],
+  "vs_ort": {
+    "sim_vs_numpy_bit_exact": true,
+    "sim_vs_ort_exact_pct": 94.3828125,
+    "sim_vs_ort_within_1lsb_pct": 99.956787109375,
+    "sim_vs_ort_max_abs_lsb": 4
+  }
+}

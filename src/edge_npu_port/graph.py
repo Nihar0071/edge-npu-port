@@ -108,12 +108,13 @@ def fuse_silu(g: Graph) -> Graph:
             sig = next((u for u in users if u.op == "Sigmoid"), None)
             mul = next((u for u in users if u.op == "Mul" and sig and sig.outputs[0] in u.inputs), None)
             if sig and mul and len(users) == 2 and len(consumers.get(sig.outputs[0], [])) == 1:
-                l = Layer(**{**l.__dict__, "outputs": mul.outputs, "attrs": {**l.attrs, "fused": "SiLU"}})
+                l = Layer(**{**l.__dict__, "outputs": mul.outputs,
+                             "attrs": {**l.attrs, "fused": "SiLU", "absorbed": [sig.name, mul.name]}})
                 drop |= {sig.index, mul.index}
         fused.append(l)
 
-    for i, l in enumerate(fused):
-        l.index = i
+    # copy, never renumber in place: the caller's graph must stay valid
+    fused = [Layer(**{**l.__dict__, "index": i}) for i, l in enumerate(fused)]
     return Graph(path=g.path, opset=g.opset, layers=fused, shapes=g.shapes,
                  inputs=g.inputs, outputs=g.outputs, weight_elems=g.weight_elems)
 

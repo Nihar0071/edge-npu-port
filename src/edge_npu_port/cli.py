@@ -73,6 +73,52 @@ def _cmd_estimate(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_quant_doctor(args: argparse.Namespace) -> int:
+    from . import quant_doctor
+
+    ladder = [int(k) for k in args.ladder.split(",")]
+    report = quant_doctor.run(Path(args.onnx), Path(args.weights), args.hw, args.eval_images,
+                              args.calib_images, ladder, Path(args.out_dir))
+    png = quant_doctor.plot(report, Path(args.out_dir) / "quant_pareto.png", args.max_drop)
+    print(f"\n  {'config':<44}{'mAP50-95':>9}{'drop':>8}{'+ms':>7}")
+    for r in report["rows"]:
+        ok = "  ok" if r["drop_pts"] <= args.max_drop else ""
+        print(f"  {r['label']:<44}{r['map50_95'] * 100:>9.2f}{r['drop_pts']:>+8.2f}{r['added_ms']:>7.2f}{ok}")
+    print(f"\n  wrote {png} and {Path(args.out_dir) / 'quant_doctor.json'}")
+    return 0
+
+
+def _cmd_kernel(args: argparse.Namespace) -> int:
+    from . import kernel_harness as kh
+
+    if not kh.SIM.exists():
+        print("build the simulator first:  uv run cmake -S sim -B sim/build -G Ninja && uv run cmake --build sim/build")
+        return 2
+    d = Path(args.out_dir)
+    info = kh.extract(Path(args.qdq), args.layer, Path(args.image), d)
+    print(f"{info['layer']}: {info['pixels']} px, {info['cin']} -> {info['cout']} ch; "
+          f"requant shift {info['shift_range'][0]}..{info['shift_range'][1]}")
+    results, ok = {}, True
+    print(f"  {'mode':<5}{'cycles':>10}{'MAC util':>10}{'px/PE':>7}{'tiles':>7}{'local B':>9}  bit-exact  vs ORT (exact / <=1 LSB / max)")
+    for m in ("v0", "v1", "v2"):
+        r = kh.simulate(d, m)
+        c = kh.compare(d)
+        results[m] = r
+        ok &= r["bit_exact"] and c["sim_vs_numpy_bit_exact"]
+        print(f"  {m:<5}{r['cycles']:>10}{r['mac_utilization']:>10.0%}{r['pixels_per_pe']:>7}{r['tiles']:>7}"
+              f"{r['local_bytes_used']:>9}  {str(r['bit_exact'] and c['sim_vs_numpy_bit_exact']):<9}  "
+              f"{c['sim_vs_ort_exact_pct']:.1f}% / {c['sim_vs_ort_within_1lsb_pct']:.2f}% / {c['sim_vs_ort_max_abs_lsb']} LSB")
+    print(f"  MAC roofline: {results['v0']['ideal_mac_cycles']} cycles")
+    sweep = kh.simulate(d, "v1", sweep=True)
+    t = kh.plot_timeline(results, d / "timeline.png")
+    s = kh.plot_sweep(sweep, d / "tile_sweep.png")
+    (d / "report.json").write_text(json.dumps({"layer": info, "results": {k: {kk: vv for kk, vv in v.items() if kk != "timeline"}
+                                                                          for k, v in results.items()},
+                                               "sweep": sweep, "vs_ort": kh.compare(d)}, indent=2))
+    print(f"  wrote {t}, {s}, {d / 'report.json'}")
+    return 0 if ok else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="edgeport", description=__doc__)
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -109,6 +155,24 @@ def main(argv: list[str] | None = None) -> int:
     e.add_argument("--validate", choices=["local"], help="compare with measured per-layer time on this machine")
     e.add_argument("--threads", type=int, default=6)
     e.set_defaults(fn=_cmd_estimate)
+
+    q = sub.add_parser("quant-doctor", help="Step 4: int8 accuracy by stage, per-layer SQNR, fixes priced in ms")
+    q.add_argument("onnx")
+    q.add_argument("--weights", default="models/yolo11n.pt", help="PyTorch weights for the float baseline")
+    q.add_argument("--hw", default="nano-gpnpu", help="target to price fixes on")
+    q.add_argument("--eval-images", type=int, default=500)
+    q.add_argument("--calib-images", type=int, default=64)
+    q.add_argument("--ladder", default="3,6", help="after blockers + decode tail: extra lowest-SQNR layers to keep in float")
+    q.add_argument("--max-drop", type=float, default=1.0, help="acceptable mAP50-95 drop, points")
+    q.add_argument("--out-dir", default="runs/quant")
+    q.set_defaults(fn=_cmd_quant_doctor)
+
+    k = sub.add_parser("kernel", help="Step 5: run one real int8 layer on the C++ tile simulator (v0/v1/v2)")
+    k.add_argument("--qdq", default="runs/quant/int8-fix0.onnx", help="quantized model to take the layer from")
+    k.add_argument("--layer", default="/model.16/cv1/conv/Conv")
+    k.add_argument("--image", default="data/val2017/000000000139.jpg")
+    k.add_argument("--out-dir", default="runs/kernel")
+    k.set_defaults(fn=_cmd_kernel)
 
     args = p.parse_args(argv)
     return args.fn(args)
