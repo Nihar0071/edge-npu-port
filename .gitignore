@@ -12,3 +12,6 @@ sim/build/
 
 # OS
 .DS_Store
+
+# Personal notes: never committed
+private/
