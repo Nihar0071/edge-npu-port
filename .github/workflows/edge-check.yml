@@ -1,0 +1,26 @@
+# Gate every PR on the edge target: the model must still be a faithful twin,
+# fit the latency budget on the target profile, and use no CPU-fallback ops.
+# Accuracy (quant-doctor) needs COCO and minutes, so it runs locally, not here.
+name: edge-check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync
+      - name: Twin check (exports models/yolo11n.onnx)
+        run: uv run edgeport twin
+      - name: Unit tests
+        run: |
+          uv run cmake -S sim -B sim/build -G Ninja
+          uv run cmake --build sim/build
+          uv run pytest -q tests
+      - name: Edge gate (Nano-class GPNPU, 60 FPS)
+        run: uv run edgeport check models/yolo11n.onnx --hw nano-gpnpu --max-ms 16.7 --max-peak-mb 4

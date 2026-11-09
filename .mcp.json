@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "edge-npu-port": {
+      "command": "uv",
+      "args": ["run", "edgeport-mcp"]
+    }
+  }
+}

@@ -119,6 +119,19 @@ def _cmd_kernel(args: argparse.Namespace) -> int:
     return 0 if ok else 1
 
 
+def _cmd_check(args: argparse.Namespace) -> int:
+    from .checks import run_checks
+
+    r = run_checks(args.onnx, args.hw, args.max_ms, args.max_peak_mb, args.allow_fallback)
+    if args.json:
+        print(json.dumps(r, indent=2))
+    else:
+        print(f"{r['model']} on {r['target']}: {'PASS' if r['pass'] else 'FAIL'}")
+        for c in r["checks"]:
+            print(f"  [{'ok' if c['pass'] else 'FAIL':>4}] {c['name']:<22} {c['detail']}")
+    return 0 if r["pass"] else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="edgeport", description=__doc__)
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -173,6 +186,15 @@ def main(argv: list[str] | None = None) -> int:
     k.add_argument("--image", default="data/val2017/000000000139.jpg")
     k.add_argument("--out-dir", default="runs/kernel")
     k.set_defaults(fn=_cmd_kernel)
+
+    ck = sub.add_parser("check", help="pass/fail gate for CI: latency budget, peak memory, CPU fallbacks")
+    ck.add_argument("onnx")
+    ck.add_argument("--hw", default="nano-gpnpu")
+    ck.add_argument("--max-ms", type=float)
+    ck.add_argument("--max-peak-mb", type=float)
+    ck.add_argument("--allow-fallback", action="store_true")
+    ck.add_argument("--json", action="store_true")
+    ck.set_defaults(fn=_cmd_check)
 
     args = p.parse_args(argv)
     return args.fn(args)
