@@ -164,6 +164,22 @@ def _cmd_aihub(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_split_head(args: argparse.Namespace) -> int:
+    from . import coco_eval, quant_doctor as qd, split_head as sh
+
+    src, out = Path(args.onnx), Path(args.out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    anchors, strides = sh.decode_constants(src)
+    bins = sh.dfl_weights(src)
+    cut = sh.cut(src, out / f"{src.stem}-convs-only.onnx", dfl_on_host=True)
+    q = qd.quantize(qd.prepare(cut), out / f"{src.stem}-convs-only-int8.onnx", qd.CONFIGS[2], args.calib_images)
+    print(f"wrote {cut} (float) and {q} (all int8; host decodes DFL, anchors, sigmoid)")
+    if args.eval_images:
+        m = coco_eval.evaluate(sh.infer(q, anchors, strides, bins=bins), args.eval_images)
+        print(f"mAP50-95 {m.map50_95 * 100:.2f}  mAP50 {m.map50 * 100:.2f}  on {m.images} COCO val images")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="edgeport", description=__doc__)
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -235,6 +251,13 @@ def main(argv: list[str] | None = None) -> int:
     ah.add_argument("--out-dir", default="runs/aihub")
     ah.add_argument("--profile-out", default="profiles/snapdragon-8-elite-htp.yaml")
     ah.set_defaults(fn=_cmd_aihub)
+
+    sp = sub.add_parser("split-head", help="cut a YOLO graph at its last convs, quantize all-int8, decode on host")
+    sp.add_argument("--onnx", default="models/yolo11n.onnx")
+    sp.add_argument("--calib-images", type=int, default=128)
+    sp.add_argument("--eval-images", type=int, default=500, help="0 to skip the COCO eval")
+    sp.add_argument("--out-dir", default="runs/split")
+    sp.set_defaults(fn=_cmd_split_head)
 
     args = p.parse_args(argv)
     return args.fn(args)

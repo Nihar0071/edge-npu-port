@@ -31,9 +31,9 @@ The core is modeled on publicly documented GPNPU architectures (e.g. Quadric Chi
 | Inspect | 3.27 GMAC/frame. Weights 2.54 MB and peak activations 3.42 MB both exceed 1 MB on-chip. Conv+SiLU fusion cuts peak memory 27% and halves the layers that overflow on-chip memory (43 → 22). No CPU fallbacks |
 | Estimate | **8.73 ms** (52% of budget). MAC roofline is 6.39 ms (73% utilization). The detection head is 29% of the time |
 | Validation (M5 Pro CPU) | The method under-predicted by **−42%** after calibrating on a representative conv (−65% with a GEMM ceiling) |
-| int8 | Naive int8 = **0 mAP**. Fixed: **41.38 (−0.99)** for **+1.02 ms** |
+| int8 | Naive int8 = **0 mAP**. First fix (decode tail in float): 41.38 (−0.99). **Final fix (NPU graph ends at the last convs, all int8, host decodes): 41.43 (−0.94)** |
 | Kernel | Slowest 1×1 conv: **394.6k → 231.8k cycles** (v0 → v2, roofline 204.8k), bit-exact |
-| Real NPU (Galaxy S25, Snapdragon 8 Elite) | **1.77 ms measured**, 345/345 ops on the NPU. The estimator ranks bottlenecks with **Spearman 0.91** (top 3 identical). The fp16 decode tail is **57% of NPU cycles** |
+| Real NPU (Galaxy S25, Snapdragon 8 Elite) | **1.77 ms → 1.24 ms (−30%)** after the final fix; all ops on the NPU. The estimator ranks bottlenecks with **Spearman 0.91** (top 3 identical) |
 
 On paper: 8.73 + 1.02 = **9.75 ms**, which meets 60 FPS.
 But if this core loses to layer shapes what the M5 CPU lost (−42%), the real figure is **~16.8 ms**, right at the budget.
@@ -44,7 +44,18 @@ The honest answer is "likely, pending measurement on silicon or the vendor simul
 On a Snapdragon 8 Elite (AI Hub, real device):
 - int8 YOLO11n runs end to end in **1.77 ms**.
 - The estimator found the same top-3 bottlenecks as the device (ρ = 0.91 over 24 modules). Absolute per-op times can't be checked: QNN's per-op cycle counts aren't a consistent wall-clock unit across models (3.3 vs 9.2 "cycles/ns").
-- **The accuracy fix is the biggest cost there:** the decode tail kept in float runs as fp16 and takes 57% of NPU cycles. The next fix is to export boxes and scores as separate outputs, so each gets its own int8 scale.
+- **The first accuracy fix was the biggest cost there:** the decode tail kept in float ran as fp16 and took 57% of NPU cycles.
+- **So the head was redesigned:** the NPU graph now ends at the last convs, outputting box DFL logits and class logits. The host does the DFL softmax, the anchor/stride math and the sigmoid (`edgeport split-head`).
+
+  | Graph ends at, all int8 | mAP50-95 | Drop |
+  |---|---|---|
+  | box distances + class probabilities | 40.56 | −1.81 |
+  | box distances + class logits | 40.83 | −1.54 |
+  | **box DFL logits + class logits**, 128 calibration images | **41.43** | **−0.94** |
+
+  Result on the S25: **1.24 ms** (−30%), model NPU cycles −49%, head share 57% → 16%, at slightly *better* accuracy.
+  Why it works: pixel coordinates (0–640) waste int8 steps; probabilities lose everything below 0.004; logits and grid-unit distances keep their precision.
+  The host work is ~52 µs per frame (numpy, M5). On a GPNPU it's plain C++ on the same core.
 
 ### The int8 failure, and how it was found
 
@@ -110,8 +121,8 @@ uv run pytest -q tests
 ## Roadmap
 
 1. **v0.1 (this).** Three commands plus `check`, MCP, the YOLO11n case study, M5 validation.
-   Real-NPU check on Qualcomm AI Hub (done: ρ = 0.91, 1.77 ms).
-   *Next fix:* split boxes and scores into separate outputs so the decode tail stays int8.
+   Real-NPU check on Qualcomm AI Hub (done: ρ = 0.91; 1.77 → 1.24 ms after the head redesign).
+   *Next fix:* feed the NPU uint8 images; the float→uint8 input conversion is now its single largest op.
 2. **v0.2: calibrated predictor.** Fit a per-device correction on measured layers. Report error on a *different* model than the one it was fitted on, and publish error per profile.
 3. **v0.3: open hardware-profile database.** Profiles accepted only with measurements attached.
 4. **v0.4: `estimate --llm`.** Prefill vs decode rooflines, KV cache, W4A16.
