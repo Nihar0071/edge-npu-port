@@ -37,6 +37,19 @@ class Profile:
     default_level: str
     assumptions: list[dict]
     sources: list[str]
+    onchip_bytes_per_s: float = 64e9  # bandwidth of on-chip memory (L2 / cache)
+    layer_overhead_s: float = 0.0  # fixed cost per layer: launch, sync, DMA setup
+    fuse_silu: bool = True  # does this target's compiler fuse Conv+SiLU?
+    vector_op_cost: dict | None = None  # per-op overrides of estimate.DEFAULT_VECTOR_COST
+    conv_macs_per_cycle: int | None = None  # achievable conv rate, if different from the GEMM peak
+
+    def __post_init__(self):
+        self.vector_op_cost = self.vector_op_cost or {}
+
+    def macs_per_s(self, op: str) -> float:
+        if op in ("Conv", "ConvTranspose") and self.conv_macs_per_cycle:
+            return self.conv_macs_per_cycle * self.clock_hz
+        return self.peak_macs_per_s
 
     def level(self, op: str) -> str:
         return self.op_levels.get(op, self.default_level)
@@ -80,4 +93,9 @@ def load(name_or_path: str) -> Profile:
         ddr_bytes_per_s=float(m["ddr_bytes_per_s"]), bytes_per_elem=int(d["bytes_per_elem"]),
         op_levels=op_levels, default_level=d["op_support"]["default"],
         assumptions=d.get("assumptions", []), sources=d.get("sources", []),
+        onchip_bytes_per_s=float(m.get("onchip_bytes_per_s", 64e9)),
+        layer_overhead_s=float(c.get("layer_overhead_s", 0.0)),
+        fuse_silu=bool(d.get("compiler", {}).get("fuse_silu", True)),
+        vector_op_cost=c.get("vector_op_cost", {}),
+        conv_macs_per_cycle=c.get("conv_macs_per_cycle"),
     )

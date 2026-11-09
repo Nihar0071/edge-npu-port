@@ -1,0 +1,52 @@
+name: m5pro-cpu
+kind: cpu
+description: Apple M5 Pro, ONNX Runtime CPU EP, 6 threads, fp32. Calibrated by microbenchmarks
+  (edgeport calibrate), not from spec sheets.
+compute:
+  macs_per_cycle: 844
+  conv_macs_per_cycle: 553
+  vector_ops_per_cycle: 75
+  clock_hz: 1000000000.0
+  layer_overhead_s: 2.0e-06
+memory:
+  onchip_bytes: 16777216
+  onchip_bytes_per_s: 449000000000.0
+  ddr_bytes_per_s: 235000000000.0
+bytes_per_elem: 4
+compiler:
+  fuse_silu: false
+op_support:
+  default: vector
+  matrix:
+  - Conv
+  - ConvTranspose
+  - MatMul
+  - Gemm
+  layout:
+  - Concat
+  - Split
+  - Reshape
+  - Transpose
+  - Slice
+  - Flatten
+  - Squeeze
+  - Unsqueeze
+  - Identity
+  - Gather
+  - Pad
+  - Expand
+  - Cast
+  - Shape
+measured:
+  matmul_2048_s: 0.0101755
+  conv3x3_64ch_80px_s: 0.0004265
+  add_256MB_s: 0.0034319999999999997
+  add_2MB_s: 1.4e-05
+  sigmoid_2MB_s: 2.8e-05
+  add_1elem_s: 2.0e-06
+  threads: 6
+  onnxruntime: 1.31.1
+assumptions:
+- field: compute.conv_macs_per_cycle
+  value: one 3x3 64ch 80x80 conv
+  note: real conv rate varies ~40x with shape; one representative conv is a simplification

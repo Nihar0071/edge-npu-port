@@ -10,12 +10,19 @@ compute:
   macs_per_cycle: 512        # 64 PEs x 8 int8 MACs
   vector_ops_per_cycle: 64   # one 32-bit ALU op per PE per cycle
   clock_hz: 1.0e9
+  layer_overhead_s: 1.0e-6   # per-layer setup: DMA descriptors, sync (assumed)
+  vector_op_cost:
+    Sigmoid: 1               # int8 input -> 256-entry lookup table, 1 op
 
 memory:
   onchip_bytes: 1048576      # 1 MB L2
+  onchip_bytes_per_s: 64.0e9 # L2 <-> PE DMA: 64 B/cycle (assumed)
   num_pes: 64
   local_bytes_per_pe: 4096   # 4 KB
   ddr_bytes_per_s: 16.0e9
+
+compiler:
+  fuse_silu: true
 
 bytes_per_elem: 1            # int8 activations and weights
 
@@ -39,6 +46,9 @@ assumptions:
   - field: compute.vector_ops_per_cycle
     value: 64
     note: assumes one ALU op per PE per cycle; real SIMD width per ALU is not published
+  - field: memory.onchip_bytes_per_s, compute.layer_overhead_s
+    value: 64 GB/s, 1 us
+    note: L2 bandwidth and per-layer setup cost are not published
   - field: op_support
     value: matrix/vector/layout split
     note: our own classification of which ops map to MACs vs ALUs; the vendor compiler may differ

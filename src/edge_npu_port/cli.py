@@ -45,6 +45,34 @@ def _cmd_inspect(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_calibrate(args: argparse.Namespace) -> int:
+    from . import calibrate
+
+    prof = calibrate.calibrate(args.threads, args.onchip_mb * 2**20, args.name)
+    path = calibrate.write(prof, Path(args.out or f"profiles/{args.name}.yaml"))
+    m = prof["measured"]
+    print(f"wrote {path}")
+    print(f"  peak MAC rate   {prof['compute']['macs_per_cycle']} GMAC/s  (2048^3 MatMul in {m['matmul_2048_s'] * 1e3:.1f} ms)")
+    print(f"  DDR bandwidth   {prof['memory']['ddr_bytes_per_s'] / 1e9:.0f} GB/s")
+    print(f"  on-chip bw      {prof['memory']['onchip_bytes_per_s'] / 1e9:.0f} GB/s")
+    print(f"  vector rate     {prof['compute']['vector_ops_per_cycle']} Gop/s")
+    print(f"  layer overhead  {prof['compute']['layer_overhead_s'] * 1e6:.1f} us")
+    return 0
+
+
+def _cmd_estimate(args: argparse.Namespace) -> int:
+    from . import estimate, graph, hardware
+
+    hw = hardware.load(args.hw)
+    est = estimate.estimate(graph.load(args.onnx), hw)
+    print(estimate.render(est, args.top, args.budget_ms))
+    if args.validate == "local":
+        from . import validate
+        threads = int(hw.description.split(" threads")[0].split()[-1]) if hw.kind == "cpu" else args.threads
+        print(validate.render(validate.validate_local(args.onnx, est, threads)))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="edgeport", description=__doc__)
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -65,6 +93,22 @@ def main(argv: list[str] | None = None) -> int:
     i.add_argument("--no-fuse", action="store_true", help="report the graph as exported, without Conv+SiLU fusion")
     i.add_argument("--json", action="store_true")
     i.set_defaults(fn=_cmd_inspect)
+
+    c = sub.add_parser("calibrate", help="measure this machine's CPU roofline into a hardware profile")
+    c.add_argument("--name", default="local-cpu")
+    c.add_argument("--threads", type=int, default=6, help="ORT intra-op threads (default: 6 = M5 Pro P-cores)")
+    c.add_argument("--onchip-mb", type=int, default=16, help="last-level cache per cluster, MB")
+    c.add_argument("--out", help="output YAML (default: profiles/<name>.yaml)")
+    c.set_defaults(fn=_cmd_calibrate)
+
+    e = sub.add_parser("estimate", help="Step 3: per-layer roofline latency on a target chip")
+    e.add_argument("onnx")
+    e.add_argument("--hw", default="nano-gpnpu")
+    e.add_argument("--budget-ms", type=float, help="latency budget to check against, e.g. 16.7 for 60 FPS")
+    e.add_argument("--top", type=int, default=10)
+    e.add_argument("--validate", choices=["local"], help="compare with measured per-layer time on this machine")
+    e.add_argument("--threads", type=int, default=6)
+    e.set_defaults(fn=_cmd_estimate)
 
     args = p.parse_args(argv)
     return args.fn(args)
