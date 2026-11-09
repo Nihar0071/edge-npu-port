@@ -12,6 +12,7 @@
 | `edgeport quant-doctor` | Where int8 accuracy goes (stage by stage), which layers cause it, and what each fix costs in ms on the target |
 | `edgeport kernel` | One real int8 layer on a C++ tile-level simulator of a GPNPU-style core: bit-exact checks, cycle timeline |
 | `edgeport check` | Pass/fail gate for CI (latency budget, peak memory, CPU fallbacks) |
+| `edgeport aihub` | Profile the int8 model on a real Snapdragon NPU (Qualcomm AI Hub) and compare per-module bottlenecks with the estimate |
 
 Built in one day (Nov 2026) with an agentic workflow (Claude Code). Every number below is reproducible with the commands in [Quickstart](#quickstart); raw results are in [`docs/results/`](docs/results).
 
@@ -32,10 +33,18 @@ The core is modeled on publicly documented GPNPU architectures (e.g. Quadric Chi
 | Validation (M5 Pro CPU) | The method under-predicted by **−42%** after calibrating on a representative conv (−65% with a GEMM ceiling) |
 | int8 | Naive int8 = **0 mAP**. Fixed: **41.38 (−0.99)** for **+1.02 ms** |
 | Kernel | Slowest 1×1 conv: **394.6k → 231.8k cycles** (v0 → v2, roofline 204.8k), bit-exact |
+| Real NPU (Galaxy S25, Snapdragon 8 Elite) | **1.77 ms measured**, 345/345 ops on the NPU. The estimator ranks bottlenecks with **Spearman 0.91** (top 3 identical). The fp16 decode tail is **57% of NPU cycles** |
 
 On paper: 8.73 + 1.02 = **9.75 ms**, which meets 60 FPS.
 But if this core loses to layer shapes what the M5 CPU lost (−42%), the real figure is **~16.8 ms**, right at the budget.
 The honest answer is "likely, pending measurement on silicon or the vendor simulator," not "yes."
+
+### What the real NPU showed
+
+On a Snapdragon 8 Elite (AI Hub, real device):
+- int8 YOLO11n runs end to end in **1.77 ms**.
+- The estimator found the same top-3 bottlenecks as the device (ρ = 0.91 over 24 modules). Absolute per-op times can't be checked: QNN's per-op cycle counts aren't a consistent wall-clock unit across models (3.3 vs 9.2 "cycles/ns").
+- **The accuracy fix is the biggest cost there:** the decode tail kept in float runs as fp16 and takes 57% of NPU cycles. The next fix is to export boxes and scores as separate outputs, so each gets its own int8 scale.
 
 ### The int8 failure, and how it was found
 
@@ -94,14 +103,15 @@ uv run pytest -q tests
 ## What this is not
 
 - **Not a vendor spec.** The Nano-class profile is built from public material; local memory, L2 bandwidth, DMA latency and per-layer overhead are assumptions, printed in every report. The simulator is a teaching-grade *performance model*, not an instruction-set simulator, and it has not been validated against Chimera silicon.
-- **The estimator is a lower bound** until calibrated per device. It has been validated only on an M5 Pro CPU so far (−42%).
+- **The estimator is a lower bound** until calibrated per device. On an M5 Pro CPU it under-predicted by 42%; on a Snapdragon NPU it ranks bottlenecks well (ρ = 0.91), but absolute per-op time couldn't be validated from QNN's cycle counts.
 - **Accuracy numbers come from a 500-image subset** of COCO val2017. A 0.99 drop against a 1.0 budget is inside that subset's noise. Confirm on the full set.
 - **Tools to use once you've picked a chip:** vendor toolchains go deeper on their own silicon. Examples: Qualcomm AI Hub (measured on real devices), Arm Vela, the Hailo DFC, and AIMET for quantization analysis. This tool is the first pass before that choice.
 
 ## Roadmap
 
 1. **v0.1 (this).** Three commands plus `check`, MCP, the YOLO11n case study, M5 validation.
-   *Next measurement:* Qualcomm AI Hub per-layer profiles on a real Snapdragon NPU.
+   Real-NPU check on Qualcomm AI Hub (done: ρ = 0.91, 1.77 ms).
+   *Next fix:* split boxes and scores into separate outputs so the decode tail stays int8.
 2. **v0.2: calibrated predictor.** Fit a per-device correction on measured layers. Report error on a *different* model than the one it was fitted on, and publish error per profile.
 3. **v0.3: open hardware-profile database.** Profiles accepted only with measurements attached.
 4. **v0.4: `estimate --llm`.** Prefill vs decode rooflines, KV cache, W4A16.

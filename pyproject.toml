@@ -20,6 +20,11 @@ dependencies = [
 edgeport = "edge_npu_port.cli:main"
 edgeport-mcp = "edge_npu_port.mcp_server:main"
 
+[project.optional-dependencies]
+aihub = [
+    "qai-hub>=0.57.0",
+]
+
 [build-system]
 requires = ["uv_build>=0.12.8,<0.13.0"]
 build-backend = "uv_build"

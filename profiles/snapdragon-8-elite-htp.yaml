@@ -1,0 +1,54 @@
+name: snapdragon-8-elite-htp
+kind: fixed-function-npu
+description: Hexagon v79 NPU (Samsung Galaxy S25 (Family)) via QNN DLC, int8. Rates
+  calibrated from an AI Hub microbenchmark, in QNN cycles (not seconds).
+compute:
+  macs_per_cycle: 9520
+  conv_macs_per_cycle: 9520
+  vector_ops_per_cycle: 512
+  clock_hz: 1.0
+  layer_overhead_s: 0
+memory:
+  onchip_bytes: 8388608
+  onchip_bytes_per_s: 256
+  ddr_bytes_per_s: 11.45
+bytes_per_elem: 1
+compiler:
+  fuse_silu: false
+op_support:
+  default: fallback
+  matrix:
+  - Conv
+  - MatMul
+  - Gemm
+  - ConvTranspose
+  vector:
+  - Add
+  - Sub
+  - Mul
+  - Div
+  - Sigmoid
+  - Softmax
+  - MaxPool
+  - Resize
+  - Relu
+  layout:
+  - Concat
+  - Split
+  - Reshape
+  - Transpose
+  - Slice
+measured:
+  conv3x3_macs_per_cycle: 9520.200145266726
+  conv1x1_macs_per_cycle: 7670.63643013899
+  add_bytes_per_cycle: 11.452750878435685
+assumptions:
+- field: units
+  value: QNN cycles
+  note: per-op QNN cycles don't sum to wall time; compare like with like
+- field: compute.vector_ops_per_cycle, memory.onchip_*
+  value: 512, 8 MB, 256 B/cycle
+  note: not measured (the Add was DDR-bound); VTCM size for v79 not confirmed
+- field: compiler.fuse_silu
+  value: false
+  note: 'measured on AI Hub: QNN ran SiLU as separate Sigmoid and Mul ops'

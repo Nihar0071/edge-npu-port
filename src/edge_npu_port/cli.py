@@ -132,6 +132,38 @@ def _cmd_check(args: argparse.Namespace) -> int:
     return 0 if r["pass"] else 1
 
 
+def _cmd_aihub(args: argparse.Namespace) -> int:
+    import numpy as np
+    import yaml
+
+    from . import aihub, estimate, graph, hardware
+
+    out = Path(args.out_dir)
+    mb = aihub.microbench_model(out / "microbench.int8.onnx", out)
+    micro = aihub.compile_and_profile(mb, args.device, out, "microbench", aihub.MICROBENCH_SPECS)
+    model = aihub.compile_and_profile(Path(args.qdq), args.device, out, "model-int8", {"images": (1, 3, 640, 640)})
+
+    prof = aihub.npu_profile(micro, args.device)
+    prof["compiler"]["fuse_silu"] = False  # measured on QNN DLC: SiLU stays Sigmoid + Mul
+    ppath = Path(args.profile_out)
+    ppath.write_text(yaml.safe_dump(prof, sort_keys=False))
+    est = estimate.estimate(graph.load(args.onnx), hardware.load(str(ppath)))
+    c = aihub.compare(model, est, estimate.module_of)
+    e = np.array([r["estimated"] for r in c["rows"]])
+    m = np.array([r["measured"] for r in c["rows"]])
+    rank = lambda x: np.argsort(np.argsort(-x))
+    c["spearman"] = float(np.corrcoef(rank(e), rank(m))[0, 1])
+    (out / "compare.json").write_text(json.dumps(c, indent=2))
+    print(f"{args.device}: wall {c['wall_us'] / 1e3:.2f} ms end to end; compute units {c['compute_units']}")
+    print(f"per-module rank correlation (estimate vs measured): {c['spearman']:.2f}")
+    print(f"QNN-cycle totals: estimated {c['total_estimated'] / 1e6:.2f}M vs measured {c['total_measured'] / 1e6:.2f}M "
+          f"(per-op QNN cycles are not a wall-clock unit; compare rankings, not totals)")
+    for r in c["rows"][:8]:
+        print(f"  {r['module']:<10} measured {r['measured'] / c['total_measured']:>6.1%}   estimated "
+              f"{r['estimated'] / c['total_estimated']:>6.1%}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="edgeport", description=__doc__)
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -195,6 +227,14 @@ def main(argv: list[str] | None = None) -> int:
     ck.add_argument("--allow-fallback", action="store_true")
     ck.add_argument("--json", action="store_true")
     ck.set_defaults(fn=_cmd_check)
+
+    ah = sub.add_parser("aihub", help="Step 6: profile on a real Snapdragon NPU via Qualcomm AI Hub and compare")
+    ah.add_argument("--onnx", default="models/yolo11n.onnx", help="float model the estimate is computed on")
+    ah.add_argument("--qdq", default="runs/quant/int8-fix0.onnx", help="int8 model to deploy and profile")
+    ah.add_argument("--device", default="Samsung Galaxy S25 (Family)")
+    ah.add_argument("--out-dir", default="runs/aihub")
+    ah.add_argument("--profile-out", default="profiles/snapdragon-8-elite-htp.yaml")
+    ah.set_defaults(fn=_cmd_aihub)
 
     args = p.parse_args(argv)
     return args.fn(args)

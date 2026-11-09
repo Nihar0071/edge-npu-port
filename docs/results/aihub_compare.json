@@ -1,0 +1,147 @@
+{
+  "rows": [
+    {
+      "module": "model.23",
+      "estimated": 261103.3512072952,
+      "measured": 7022964
+    },
+    {
+      "module": "model.0",
+      "estimated": 139318.77729257644,
+      "measured": 1152264
+    },
+    {
+      "module": "model.2",
+      "estimated": 98010.08403361344,
+      "measured": 897138
+    },
+    {
+      "module": "model.10",
+      "estimated": 30451.344537815126,
+      "measured": 872017
+    },
+    {
+      "module": "model.4",
+      "estimated": 57610.08403361344,
+      "measured": 396340
+    },
+    {
+      "module": "model.1",
+      "estimated": 28391.26050420168,
+      "measured": 284112
+    },
+    {
+      "module": "model.16",
+      "estimated": 53740.50420168067,
+      "measured": 234334
+    },
+    {
+      "module": "model.6",
+      "estimated": 36456.4705882353,
+      "measured": 216290
+    },
+    {
+      "module": "model.3",
+      "estimated": 32782.52100840336,
+      "measured": 169489
+    },
+    {
+      "module": "model.9",
+      "estimated": 18984.03361344538,
+      "measured": 160481
+    },
+    {
+      "module": "model.13",
+      "estimated": 34786.89075630252,
+      "measured": 144937
+    },
+    {
+      "module": "model.8",
+      "estimated": 25456.470588235297,
+      "measured": 128501
+    },
+    {
+      "module": "model.19",
+      "estimated": 30656.470588235294,
+      "measured": 120909
+    },
+    {
+      "module": "model.5",
+      "estimated": 28782.52100840336,
+      "measured": 115104
+    },
+    {
+      "module": "model.22",
+      "estimated": 26833.277310924368,
+      "measured": 112598
+    },
+    {
+      "module": "model.17",
+      "estimated": 8195.63025210084,
+      "measured": 65477
+    },
+    {
+      "module": "model.14",
+      "estimated": 4000.0,
+      "measured": 59449
+    },
+    {
+      "module": "model.7",
+      "estimated": 14391.26050420168,
+      "measured": 47017
+    },
+    {
+      "module": "model.20",
+      "estimated": 7195.63025210084,
+      "measured": 38581
+    },
+    {
+      "module": "model.11",
+      "estimated": 2000.0,
+      "measured": 32351
+    },
+    {
+      "module": "model.12",
+      "estimated": 4800.0,
+      "measured": 0
+    },
+    {
+      "module": "model.15",
+      "estimated": 12800.0,
+      "measured": 0
+    },
+    {
+      "module": "model.18",
+      "estimated": 2400.0,
+      "measured": 0
+    },
+    {
+      "module": "model.21",
+      "estimated": 1200.0,
+      "measured": 0
+    }
+  ],
+  "total_estimated": 960346.5822813843,
+  "total_measured": 12270353,
+  "error": -0.9217343965343634,
+  "per_module_wmape": 0.9251898798444197,
+  "unmatched_cycles": 3939202,
+  "compute_units": {
+    "NPU": 345
+  },
+  "wall_us": 1767,
+  "spearman": 0.906086956521739,
+  "device": "Samsung Galaxy S25 (Family), Snapdragon 8 Elite, Hexagon v79, QNN DLC",
+  "jobs": {
+    "model": {
+      "compile": "https://workbench.aihub.qualcomm.com/jobs/j56mle1yp/",
+      "profile": "https://workbench.aihub.qualcomm.com/jobs/jp372vmng/",
+      "device": "Samsung Galaxy S25 (Family)"
+    },
+    "microbench": {
+      "compile": "https://workbench.aihub.qualcomm.com/jobs/jpex3ekvg/",
+      "profile": "https://workbench.aihub.qualcomm.com/jobs/j5wzn2qm5/",
+      "device": "Samsung Galaxy S25 (Family)"
+    }
+  }
+}
